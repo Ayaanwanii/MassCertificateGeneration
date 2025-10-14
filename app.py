@@ -67,7 +67,7 @@ if excel_file and pdf_file:
 
                 # Filename sanitizing
                 safe_name = re.sub(r'[<>:"/\\|?*]', '_', student.replace(" ", "_"))
-                cert_name = f"{safe_name}_certificate.pdf"
+                cert_name = f"{safe_name}_{i+1}_certificate.pdf"
 
                 # Write PDF to buffer then add to ZIP
                 out_buf = io.BytesIO()
