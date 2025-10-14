@@ -40,6 +40,7 @@ if excel_file and pdf_file:
 
     with zipfile.ZipFile(zip_buf, "w") as zipf:
         for i in range(len(participants)):
+            student = "Unknown"
             try:
                 student = str(participants.loc[i, 'Student']).strip()
                 school = str(participants.loc[i, 'School']).strip()
