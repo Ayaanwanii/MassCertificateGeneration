@@ -1,7 +1,4 @@
-streamlit
-PyPDF2
-pandas
-reportlab
+
 openpyxl
 altair==5.5.0
 altgraph @ file:///AppleInternal/Library/BuildRoots/39d9dc1a-2111-11f0-be06-226177e5bb69/Library/Caches/com.apple.xbs/Sources/python3/altgraph-0.17.2-py2.py3-none-any.whl
