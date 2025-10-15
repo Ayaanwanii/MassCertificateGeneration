@@ -1,95 +1,112 @@
 import streamlit as st
 import pandas as pd
-from PyPDF2 import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-import reportlab.rl_config
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-import io
-import re
-import zipfile
+import io, re, zipfile
 
+# Streamlit page setup
+st.set_page_config(page_title="Certificate Generator", page_icon="🎓", layout="wide")
 st.title("Automated Certificate Generator")
 
-# File uploaders for participant Excel and certificate template PDF
+# File Uploads
 excel_file = st.file_uploader("Upload Participant List (Excel)", type=["xlsx"])
 pdf_file = st.file_uploader("Upload Certificate Template (PDF)", type=["pdf"])
 
-# Optional customization area
+# Settings Panel 
 st.markdown("Certificate Text Settings")
-student_font_size = st.number_input("Student Name Font Size", value=18, min_value=10, max_value=60)
-school_font_size = st.number_input("School Name Font Size", value=18, min_value=10, max_value=60)
-student_y = st.number_input("Student Y Position", value=610, min_value=400, max_value=800)
-school_y = st.number_input("School Y Position", value=550, min_value=400, max_value=800)
-student_x = st.number_input("Student X Position", value=306, min_value=0, max_value=1224)
-school_x = st.number_input("School X Position", value=306, min_value=0, max_value=1224)
 
+col1, col2 = st.columns(2)
 
+with col1:
+    student_font_size = st.number_input("Student Name Font Size", 10, 60, 18)
+    student_x = st.number_input("Student X Position", 0, 1224, 306)
+    student_y = st.number_input("Student Y Position", 400, 800, 610)
+
+with col2:
+    school_font_size = st.number_input("School Name Font Size", 10, 60, 18)
+    school_x = st.number_input("School X Position", 0, 1224, 306)
+    school_y = st.number_input("School Y Position", 400, 800, 550)
+
+# Main Logic 
 if excel_file and pdf_file:
     participants = pd.read_excel(excel_file)
-    template_pdf = PdfReader(pdf_file)
+    pdf_bytes = pdf_file.read()  # Read template into memory once
 
-    # Feedback for loaded participants
-    st.write(f"Loaded {len(participants)} participants.")
+    # Auto-detect column names
+    student_col = next((c for c in participants.columns if "student" in c.lower() or "name" in c.lower()), participants.columns[0])
+    school_col = next((c for c in participants.columns if "school" in c.lower() or "institution" in c.lower()), 
+                      participants.columns[1] if len(participants.columns) > 1 else participants.columns[0])
 
-    # Prepare storage for ZIP
-    zip_buf = io.BytesIO()
-    success_count = 0
-    fail_count = 0
+    st.markdown(f" Using column {student_col} for Student names.")
+    st.markdown(f" Using column {school_col} for School names.")
+    st.success(f"  Loaded {len(participants)} participants.")
 
-    with zipfile.ZipFile(zip_buf, "w") as zipf:
-        for i in range(len(participants)):
-            student = "Unknown"
-            try:
-                student = str(participants.loc[i, 'Student']).strip()
-                school = str(participants.loc[i, 'School']).strip()
-                if pd.isna(participants.loc[i, 'Student']) or not student:
-                    fail_count += 1
-                    continue
+    # Generate on Button Click
+    if st.button("Generate Certificates"):
+        zip_buf = io.BytesIO()
+        success, fail = 0, 0
 
-                # Create overlay canvas
-                packet = io.BytesIO()
-                width, height = letter
-                c = canvas.Canvas(packet, pagesize=(width * 2, height * 2))
-                c.setFillColorRGB(0, 0, 0)
-                c.setFont('Helvetica-Bold', student_font_size)
-                c.drawCentredString(student_x, student_y, student)
-                c.setFont('Helvetica-Bold', school_font_size)
-                c.drawCentredString(school_x, school_y, school)
-                c.save()
-                packet.seek(0)
+        with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as zipf:
+            for idx, row in participants.iterrows():
+                try:
+                    student = str(row[student_col]).strip()
+                    school = str(row[school_col]).strip() if not pd.isna(row[school_col]) else ""
 
-                # Readers and merge
-                template_pdf = PdfReader(pdf_file)
-                page = template_pdf.pages[0]
-                overlay_pdf = PdfReader(packet)
-                page.merge_page(overlay_pdf.pages[0])
+                    # Skip if student name is empty
+                    if not student or pd.isna(student):
+                        fail += 1
+                        continue
 
-                # Filename sanitizing
-                safe_name = re.sub(r'[<>:"/\\|?*]', '_', student.replace(" ", "_"))
-                cert_name = f"{safe_name}_{i+1}_certificate.pdf"
+                    # Create overlay canvas for each 
+                    overlay_packet = io.BytesIO()
+                    w, h = letter
+                    c = canvas.Canvas(overlay_packet, pagesize=(w, h))
+                    c.setFillColorRGB(0, 0, 0)
+                    c.setFont("Helvetica-Bold", student_font_size)
+                    c.drawCentredString(student_x, student_y, student)
+                    c.setFont("Helvetica-Bold", school_font_size)
+                    c.drawCentredString(school_x, school_y, school)
+                    c.save()
+                    overlay_packet.seek(0)
 
-                # Write PDF to buffer then add to ZIP
-                out_buf = io.BytesIO()
-                writer = PdfWriter()
-                writer.add_page(page)
-                writer.write(out_buf)
-                zipf.writestr(cert_name, out_buf.getvalue())
-                packet.close()
-                success_count += 1
+                    # Merge overlay & base certificate template 
+                    base_reader = PdfReader(io.BytesIO(pdf_bytes))
+                    overlay_reader = PdfReader(overlay_packet)
+                    base_page = base_reader.pages[0]
+                    base_page.merge_page(overlay_reader.pages[0])
 
-            except Exception as e:
-                fail_count += 1
-                st.error(f"Error for {student}: {e}")
+                    # Write merged page to memory buffer
+                    out_buf = io.BytesIO()
+                    writer = PdfWriter()
+                    writer.add_page(base_page)
+                    writer.write(out_buf)
+                    writer.close()
+                    out_buf.seek(0)
 
-    st.write(f"Completed: {success_count} successful, {fail_count} failed.")
+                    # Safe unique filename
+                    safe_name = re.sub(r'[<>:"/\\|?*]', "_", student.replace(" ", "_"))
+                    filename = f"{idx+1:03d}_{safe_name}_certificate.pdf"
 
-    st.download_button(
-        "Download All Certificates (.zip)",
-        data=zip_buf.getvalue(),
-        file_name="certificates.zip",
-        mime="application/zip"
-    )
+                    zipf.writestr(filename, out_buf.getvalue())
+                    success += 1
+
+                except Exception as e:
+                    fail += 1
+                    st.error(f"Error creating certificate for {student or 'Unknown'}: {e}")
+
+        # Finalize and rewind ZIP
+        zip_buf.seek(0)
+
+        st.success(f"Completed: {success} successful, {fail} failed.")
+
+        # FIX: Use .getvalue() for stable Streamlit download
+        st.download_button(
+            "Download All Certificates (.zip)",
+            data=zip_buf.getvalue(),
+            file_name="certificates.zip",
+            mime="application/zip"
+        )
+
 else:
-    st.info("Please upload both the Excel and template PDF files to begin.")
+    st.info("Please upload both the Excel file and Certificate template to begin.")
