@@ -30,7 +30,7 @@ with col2:
 
 # Main Logic 
 if excel_file and pdf_file:
-    participants = pd.read_excel(excel_file)
+    participants = pd.read_excel(excel_file, header = 1 )
     pdf_bytes = pdf_file.read()  # Read template into memory once
 
     # Auto-detect column names
