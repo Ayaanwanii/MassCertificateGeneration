@@ -3,6 +3,8 @@ import pandas as pd
 from pypdf import PdfReader, PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 import io, re, zipfile
 
 # Streamlit page setup
@@ -62,10 +64,10 @@ if excel_file and pdf_file:
                     overlay_packet = io.BytesIO()
                     w, h = letter
                     c = canvas.Canvas(overlay_packet, pagesize=(w, h))
-                    c.setFillColorRGB(0, 0, 0)
-                    c.setFont("Helvetica-Bold", student_font_size)
+                    c.setFillColorRGB(18/255, 97/255, 160/255)
+                    c.setFont("BlissExtraBold", student_font_size)
                     c.drawCentredString(student_x, student_y, student)
-                    c.setFont("Helvetica-Bold", school_font_size)
+                    c.setFont("BlissExtraBold", school_font_size)
                     c.drawCentredString(school_x, school_y, school)
                     c.save()
                     overlay_packet.seek(0)
