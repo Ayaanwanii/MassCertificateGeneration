@@ -67,8 +67,9 @@ if excel_file and pdf_file:
                     if not student or pd.isna(student):
                         fail += 1
                         continue
+                        
                     school = ""
-                   if school_col and not pd.isna(row[school_col]):
+                    if school_col and not pd.isna(row[school_col]):
                        school = str(row[school_col]).strip() 
 
                     # Create overlay canvas for each 
