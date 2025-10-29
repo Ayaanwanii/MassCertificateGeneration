@@ -41,12 +41,12 @@ if excel_file and pdf_file:
    student_col = next(
     (c for c in participants.columns if "student" in c.lower() or "name" in c.lower()),
     participants.columns[0]
-   )
+    )
 
    school_col = next(
     (c for c in participants.columns if "school" in c.lower() or "institution" in c.lower()),
     None if len(participants.columns) == 1 else participants.columns[1]
-   )
+    )
 
     st.markdown(f" Using column {student_col} for Student names.")
     st.markdown(f" Using column {school_col} for School names.")
