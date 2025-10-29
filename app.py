@@ -25,12 +25,12 @@ col1, col2 = st.columns(2)
 with col1:
     student_font_size = st.number_input("Student Name Font Size", 10, 60, 18)
     student_x = st.number_input("Student X Position", 0, 1224, 306)
-    student_y = st.number_input("Student Y Position", 250, 800, 610)
+    student_y = st.number_input("Student Y Position", 0, 800, 610)
 
 with col2:
     school_font_size = st.number_input("School Name Font Size", 10, 60, 18)
     school_x = st.number_input("School X Position", 0, 1224, 306)
-    school_y = st.number_input("School Y Position", 250, 800, 550)
+    school_y = st.number_input("School Y Position", 0, 800, 550)
 
 # Main Logic 
 if excel_file and pdf_file:
