@@ -71,7 +71,7 @@ if excel_file and pdf_file:
                     school = ""
                     if school_col and not pd.isna(row[school_col]):
                        school = str(row[school_col]).strip() 
-                        continue
+                       continue
 
                     # Create overlay canvas for each 
                     overlay_packet = io.BytesIO()
