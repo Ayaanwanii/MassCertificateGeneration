@@ -7,7 +7,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import io, re, zipfile
 
-pdfmetrics.registerFont(TTFont('BlissExtraBold', 'https://github.com/Ayaanwanii/MassCertificateGeneration/blob/main/Bliss%20Extra%20Bold.ttf'))
+pdfmetrics.registerFont(TTFont('BlissExtraBold', './BlissExtraBold.ttf'))
 
 # Streamlit page setup
 st.set_page_config(page_title="Certificate Generator", page_icon="🎓", layout="wide")
