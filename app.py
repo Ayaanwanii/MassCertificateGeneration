@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
-from pypdf import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter, PageObject
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import io, re, zipfile
 
-# Register font (make sure the .ttf file is in the same folder)
+# Register font (ensure this font file exists in your working folder)
 pdfmetrics.registerFont(TTFont('BlissExtraBold', './Bliss Extra Bold.ttf'))
 
 # Streamlit page setup
@@ -24,8 +24,8 @@ col1, col2 = st.columns(2)
 
 with col1:
     student_font_size = st.number_input("Student Name Font Size", 10, 60, 18)
-    student_x = st.number_input("Student X Position", 0, 1224, 306)
-    student_y = st.number_input("Student Y Position", 0, 800, 610)
+    student_x = st.number_input("Student X Position", 0, 1224, 427)
+    student_y = st.number_input("Student Y Position", 0, 800, 200)
 
 with col2:
     school_font_size = st.number_input("School Name Font Size", 10, 60, 18)
@@ -34,10 +34,14 @@ with col2:
 
 # Main logic
 if excel_file and pdf_file:
-    participants = pd.read_excel(excel_file, header=1)
+    # Read Excel and ensure headers are correct
+    participants = pd.read_excel(excel_file, header=0)
+    if participants.columns[0] == "" or participants.columns[0] is None:
+        participants.columns = ["Student Name"]
+
     pdf_bytes = pdf_file.read()
 
-    # Auto-detect column names
+    # Auto-detect columns
     student_col = next(
         (c for c in participants.columns if "student" in c.lower() or "name" in c.lower()),
         participants.columns[0]
@@ -48,11 +52,11 @@ if excel_file and pdf_file:
         None if len(participants.columns) == 1 else participants.columns[1]
     )
 
-    st.markdown(f"🧑‍🎓 Using column **{student_col}** for Student names.")
-    st.markdown(f"🏫 Using column **{school_col}** for School names.")
-    st.success(f"✅ Loaded {len(participants)} participants.")
+    st.markdown(f"Using column {student_col} for Student names.")
+    st.markdown(f"Using column {school_col} for School names.")
+    st.success(f" Loaded {len(participants)} participants.")
 
-    # Generate on button click
+    # Generate button
     if st.button("Generate Certificates"):
         zip_buf = io.BytesIO()
         success, fail = 0, 0
@@ -60,21 +64,21 @@ if excel_file and pdf_file:
         with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as zipf:
             for idx, row in participants.iterrows():
                 try:
-                    # Validate student
+                    # Validate student name
                     raw_student = row[student_col]
                     if pd.isna(raw_student) or str(raw_student).strip() == "":
                         fail += 1
                         continue
                     student = str(raw_student).strip()
 
-                    # Handle school (optional)
+                    # Optional school name
                     school = ""
                     if school_col is not None:
                         raw_school = row[school_col]
                         if not pd.isna(raw_school) and str(raw_school).strip() != "":
                             school = str(raw_school).strip()
 
-                    # Read base template & get dimensions
+                    # Read base template
                     base_reader = PdfReader(io.BytesIO(pdf_bytes))
                     base_page = base_reader.pages[0]
                     media_box = base_page.mediabox
@@ -95,12 +99,15 @@ if excel_file and pdf_file:
                     c.save()
                     overlay_packet.seek(0)
 
-                    # Merge overlay with base (using a copy to prevent duplication)
+                    # Merge base + overlay correctly
                     overlay_reader = PdfReader(overlay_packet)
-                    merged_page = base_page.copy()
+                    merged_page = PageObject.create_blank_page(
+                        width=w, height=h
+                    )
+                    merged_page.merge_page(base_page)
                     merged_page.merge_page(overlay_reader.pages[0])
 
-                    # Save the final PDF
+                    # Write output
                     out_buf = io.BytesIO()
                     writer = PdfWriter()
                     writer.add_page(merged_page)
@@ -119,12 +126,12 @@ if excel_file and pdf_file:
                     fail += 1
                     st.error(f"Error creating certificate for {student or 'Unknown'}: {e}")
 
-        # Finalize ZIP
+        # Finalize and download
         zip_buf.seek(0)
-        st.success(f"🎉 Completed: {success} successful, {fail} failed.")
+        st.success(f"Completed: {success} successful, {fail} failed.")
 
         st.download_button(
-            "📦 Download All Certificates (.zip)",
+            "Download All Certificates (.zip)",
             data=zip_buf.getvalue(),
             file_name="certificates.zip",
             mime="application/zip"
