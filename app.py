@@ -38,9 +38,15 @@ if excel_file and pdf_file:
     pdf_bytes = pdf_file.read()  # Read template into memory once
 
     # Auto-detect column names
-    student_col = next((c for c in participants.columns if "student" in c.lower() or "name" in c.lower()), participants.columns[0])
-    school_col = next((c for c in participants.columns if "school" in c.lower() or "institution" in c.lower()), 
-                      participants.columns[1] if len(participants.columns) > 1 else participants.columns[0])
+   student_col = next(
+    (c for c in participants.columns if "student" in c.lower() or "name" in c.lower()),
+    participants.columns[0]
+   )
+
+   school_col = next(
+    (c for c in participants.columns if "school" in c.lower() or "institution" in c.lower()),
+    None if len(participants.columns) == 1 else participants.columns[1]
+   )
 
     st.markdown(f" Using column {student_col} for Student names.")
     st.markdown(f" Using column {school_col} for School names.")
@@ -61,6 +67,9 @@ if excel_file and pdf_file:
                     if not student or pd.isna(student):
                         fail += 1
                         continue
+                    school = ""
+                   if school_col and not pd.isna(row[school_col]):
+                       school = str(row[school_col]).strip() 
 
                     # Create overlay canvas for each 
                     overlay_packet = io.BytesIO()
