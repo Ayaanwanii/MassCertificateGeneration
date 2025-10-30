@@ -8,7 +8,7 @@ import io, re, zipfile
 
 # Register font (ensure this font file exists in your working folder)
 pdfmetrics.registerFont(TTFont('BlissExtraBold', './Bliss Extra Bold.ttf'))
-pdfmetrics.registerFont(TTFont('Alliance-BoldItalic', './Alliance-BoldItalic.ttf'))
+pdfmetrics.registerFont(TTFont('Alliance-BoldItalic', './alliance-bolditalic.ttf'))
 
 # Streamlit page setup
 st.set_page_config(page_title="Certificate Generator", page_icon="🎓", layout="wide")
