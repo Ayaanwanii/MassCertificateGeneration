@@ -15,7 +15,7 @@ pdfmetrics.registerFont(OTFont('Alliance-ExtraBold', './Alliance-ExtraBold.otf')
 pdfmetrics.registerFont(OTFont('Alliance-ExtraBoldCondensed', './AllianceExtraBoldCondensed.otf'))
 pdfmetrics.registerFont(OTFont('AllianceExtraBoldItalic', './Alliance-ExtraBoldItalic.otf'))
 pdfmetrics.registerFont(OTFont('Alliance-Medium', './Alliance-Medium.otf'))
-pdfmetrics.registerFont(0TFont('Alliance-MediumItalic', './Alliance-MediumItalic.otf'))
+pdfmetrics.registerFont(OTFont('Alliance-MediumItalic', './Alliance-MediumItalic.otf'))
 pdfmetrics.registerFont(TTFont('Alliance-BoldItalic', './Alliance-BoldItalic.ttf'))
 
 # Streamlit page setup
