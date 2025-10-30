@@ -9,7 +9,6 @@ import io, re, zipfile
 # Register font (ensure this font file exists in your working folder)
 pdfmetrics.registerFont(TTFont('BlissExtraBold', './Bliss Extra Bold.ttf'))
 pdfmetrics.registerFont(TTFont('Alliance-BoldItalic', './alliance-bolditalic.ttf'))
-pdfmetrics.registerFont(TTFont('Alliance Bold Italic', './Alliance Bold Italic.ttf'))
 pdfmetrics.registerFont(TTFont('Alliance Bold', './Alliance Bold.ttf'))
 pdfmetrics.registerFont(TTFont('Alliance Ext Bold Condensed Italic', './Alliance Extended Bold Condensed Italic.ttf'))
 pdfmetrics.registerFont(TTFont('Alliance Bold Condensed', './Alliance Bold Condensed.ttf'))
@@ -46,7 +45,7 @@ with col1:
         "BlissExtraBold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
         "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
         "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
-        "Symbol", "ZapfDingbats", "Alliance-BoldItalic", "Alliance Bold Italic", "Alliance Bold", "Alliance Ext Bold Condensed Italic", 
+        "Symbol", "ZapfDingbats", "Alliance-BoldItalic", "Alliance Bold", "Alliance Ext Bold Condensed Italic", 
         "Alliance Bold Condensed", "Alliance Extra Bold Italic", "Alliance Extra Bold", "Alliance Medium Font", "Alliance Medium Italic"
     ], index=1)  # Default to Helvetica-Bold
     student_color = st.color_picker("Student Text Color", "#000000")
@@ -59,7 +58,7 @@ with col2:
         "BlissExtraBold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
         "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
         "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
-        "Symbol", "ZapfDingbats", "Alliance-Bolditalic", "Alliance Bold Italic", "Alliance Bold", "Alliance Ext Bold Condensed Italic", 
+        "Symbol", "ZapfDingbats", "Alliance-Bolditalic", "Alliance Bold", "Alliance Ext Bold Condensed Italic", 
         "Alliance Bold Condensed", "Alliance Extra Bold Italic", "Alliance Extra Bold", "Alliance Medium Font", "Alliance Medium Italic"
     ], index=1)  # Default to Helvetica-Bold
     school_color = st.color_picker("School Text Color", "#000000")
