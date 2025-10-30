@@ -32,7 +32,7 @@ with col1:
     student_x = st.number_input("Student X Position", 0, 1224, 427)
     student_y = st.number_input("Student Y Position", 0, 800, 200)
     student_font = st.selectbox("School Font", [
-        "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
+        "BlissExtraBold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
         "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
         "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
         "Symbol", "ZapfDingbats"
@@ -44,7 +44,7 @@ with col2:
     school_x = st.number_input("School X Position", 0, 1224, 306)
     school_y = st.number_input("School Y Position", 0, 800, 550)
     school_font = st.selectbox("Student Font", [
-        "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
+        "BlissExtraBold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
         "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
         "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
         "Symbol", "ZapfDingbats"
