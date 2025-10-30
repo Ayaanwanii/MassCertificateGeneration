@@ -9,13 +9,13 @@ import io, re, zipfile
 # Register font (ensure this font file exists in your working folder)
 pdfmetrics.registerFont(TTFont('BlissExtraBold', './Bliss Extra Bold.ttf'))
 pdfmetrics.registerFont(TTFont('Alliance-BoldItalic', './alliance-bolditalic.ttf'))
-pdfmetrics.registerFont(TTFont('Alliance Bold', './Alliance Bold.ttf'))
-pdfmetrics.registerFont(TTFont('Alliance Ext Bold Condensed Italic', './Alliance Extended Bold Condensed Italic.ttf'))
-pdfmetrics.registerFont(TTFont('Alliance Bold Condensed', './Alliance Bold Condensed.ttf'))
-pdfmetrics.registerFont(TTFont('Alliance Extra Bold Italic', './Alliance Extra Bold Italic.ttf'))
-pdfmetrics.registerFont(TTFont('Alliance Extra Bold', './Alliance Extra Bold.ttf'))
-pdfmetrics.registerFont(TTFont('Alliance Medium Font', './Alliance Medium Font.ttf'))
-pdfmetrics.registerFont(TTFont('Alliance Medium Italic', './Alliance Medium Italic.ttf'))
+pdfmetrics.registerFont(TTFont('AllianceBold', './Alliance Bold.ttf'))
+pdfmetrics.registerFont(TTFont('AllianceExtBoldCondensed Italic', './Alliance Extended Bold Condensed Italic.ttf'))
+pdfmetrics.registerFont(TTFont('AllianceBoldCondensed', './Alliance Bold Condensed.ttf'))
+pdfmetrics.registerFont(TTFont('AllianceExtraBoldItalic', './Alliance Extra Bold Italic.ttf'))
+pdfmetrics.registerFont(TTFont('AllianceExtraBold', './Alliance Extra Bold.ttf'))
+pdfmetrics.registerFont(TTFont('AllianceMediumFont', './Alliance Medium Font.ttf'))
+pdfmetrics.registerFont(TTFont('AllianceMediumItalic', './Alliance Medium Italic.ttf'))
 
                                
 
@@ -45,8 +45,8 @@ with col1:
         "BlissExtraBold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
         "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
         "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
-        "Symbol", "ZapfDingbats", "Alliance-BoldItalic", "Alliance Bold", "Alliance Ext Bold Condensed Italic", 
-        "Alliance Bold Condensed", "Alliance Extra Bold Italic", "Alliance Extra Bold", "Alliance Medium Font", "Alliance Medium Italic"
+        "Symbol", "ZapfDingbats", "Alliance-BoldItalic", "AllianceBold", "AllianceExtBoldCondensedItalic", 
+        "AllianceBoldCondensed", "AllianceExtraBoldItalic", "AllianceExtraBold", "AllianceMediumFont", "AllianceMediumItalic"
     ], index=1)  # Default to Helvetica-Bold
     student_color = st.color_picker("Student Text Color", "#000000")
 
@@ -58,8 +58,8 @@ with col2:
         "BlissExtraBold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
         "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
         "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
-        "Symbol", "ZapfDingbats", "Alliance-Bolditalic", "Alliance Bold", "Alliance Ext Bold Condensed Italic", 
-        "Alliance Bold Condensed", "Alliance Extra Bold Italic", "Alliance Extra Bold", "Alliance Medium Font", "Alliance Medium Italic"
+        "Symbol", "ZapfDingbats", "Alliance-Bolditalic", "AllianceBold", "AllianceExtBoldCondensedItalic", 
+        "AllianceBoldCondensed", "AllianceExtraBoldItalic", "AllianceExtraBold", "AllianceMediumFont", "AllianceMediumItalic"
     ], index=1)  # Default to Helvetica-Bold
     school_color = st.color_picker("School Text Color", "#000000")
 
