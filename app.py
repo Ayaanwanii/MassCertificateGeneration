@@ -31,7 +31,7 @@ with col1:
     student_font_size = st.number_input("Student Name Font Size", 10, 60, 18)
     student_x = st.number_input("Student X Position", 0, 1224, 427)
     student_y = st.number_input("Student Y Position", 0, 800, 200)
-    student_font = st.selectbox("School Font", [
+    student_font = st.selectbox("Student Font", [
         "BlissExtraBold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
         "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
         "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
@@ -43,7 +43,7 @@ with col2:
     school_font_size = st.number_input("School Name Font Size", 10, 60, 18)
     school_x = st.number_input("School X Position", 0, 1224, 306)
     school_y = st.number_input("School Y Position", 0, 800, 550)
-    school_font = st.selectbox("Student Font", [
+    school_font = st.selectbox("School Font", [
         "BlissExtraBold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
         "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
         "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
@@ -158,4 +158,4 @@ if excel_file and pdf_file:
         )
 
 else:
-    st.info("📂 Please upload both the Excel file and Certificate template to begin.")
+    st.info("Please upload both the Excel file and Certificate template to begin.")
