@@ -8,14 +8,6 @@ import io, re, zipfile
 
 # Register font (ensure this font file exists in your working folder)
 pdfmetrics.registerFont(TTFont('BlissExtraBold', './Bliss Extra Bold.ttf'))
-pdfmetrics.registerFont(OTFont('Alliance-Bold', './Alliance-Bold.otf'))
-pdfmetrics.registerFont(OTFont('Alliance-BoldItalic', './Alliance-BoldItalic.otf'))
-pdfmetrics.registerFont(OTFont('Alliance-ExtBdCondItalic', './Alliance-ExtBdCondItalic.otf'))
-pdfmetrics.registerFont(OTFont('Alliance-ExtraBold', './Alliance-ExtraBold.otf'))
-pdfmetrics.registerFont(OTFont('Alliance-ExtraBoldCondensed', './AllianceExtraBoldCondensed.otf'))
-pdfmetrics.registerFont(OTFont('AllianceExtraBoldItalic', './Alliance-ExtraBoldItalic.otf'))
-pdfmetrics.registerFont(OTFont('Alliance-Medium', './Alliance-Medium.otf'))
-pdfmetrics.registerFont(OTFont('Alliance-MediumItalic', './Alliance-MediumItalic.otf'))
 pdfmetrics.registerFont(TTFont('Alliance-BoldItalic', './Alliance-BoldItalic.ttf'))
 
 # Streamlit page setup
@@ -44,8 +36,7 @@ with col1:
         "BlissExtraBold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
         "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
         "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
-        "Symbol", "ZapfDingbats", "AllianceBold", "Alliance-BoldItalic", "Alliance-ExtBdCondItalic", "Alliance-ExtraBold", "Alliance-ExtarBoldCondensed", 
-        "Alliance-ExtraBoldItalic", "Alliance-Medium", "Alliance-MediumItalic", "Alliance-Bolditalic"
+        "Symbol", "ZapfDingbats", "Alliance-BoldItalic"
     ], index=1)  # Default to Helvetica-Bold
     student_color = st.color_picker("Student Text Color", "#000000")
 
@@ -57,8 +48,7 @@ with col2:
         "BlissExtraBold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
         "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
         "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
-        "Symbol", "ZapfDingbats""AllianceBold", "Alliance-BoldItalic", "Alliance-ExtBdCondItalic", "Alliance-ExtraBold", "Alliance-ExtarBoldCondensed", 
-        "Alliance-ExtraBoldItalic", "Alliance-Medium", "Alliance-MediumItalic", "Alliance-Bolditalic"
+        "Symbol", "ZapfDingbats", "Alliance-Bolditalic"
     ], index=1)  # Default to Helvetica-Bold
     school_color = st.color_picker("School Text Color", "#000000")
 
