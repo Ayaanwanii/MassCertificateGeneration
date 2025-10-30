@@ -17,6 +17,11 @@ st.title("Automated Certificate Generator")
 excel_file = st.file_uploader("Upload Participant List (Excel)", type=["xlsx"])
 pdf_file = st.file_uploader("Upload Certificate Template (PDF)", type=["pdf"])
 
+def hex_to_rgb(hex_color):
+    """Convert hex color to RGB tuple (0-1 range for ReportLab)."""
+    hex_color = hex_color.lstrip('#')
+    return tuple(int(hex_color[i:i+2], 16) / 255 for i in (0, 2, 4))
+
 # Settings panel
 st.markdown("### Certificate Text Settings")
 
@@ -26,11 +31,25 @@ with col1:
     student_font_size = st.number_input("Student Name Font Size", 10, 60, 18)
     student_x = st.number_input("Student X Position", 0, 1224, 427)
     student_y = st.number_input("Student Y Position", 0, 800, 200)
+    student_font = st.selectbox("School Font", [
+        "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
+        "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
+        "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
+        "Symbol", "ZapfDingbats"
+    ], index=1)  # Default to Helvetica-Bold
+    student_color = st.color_picker("Student Text Color", "#000000")
 
 with col2:
     school_font_size = st.number_input("School Name Font Size", 10, 60, 18)
     school_x = st.number_input("School X Position", 0, 1224, 306)
     school_y = st.number_input("School Y Position", 0, 800, 550)
+    school_font = st.selectbox("Student Font", [
+        "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
+        "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
+        "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique",
+        "Symbol", "ZapfDingbats"
+    ], index=1)  # Default to Helvetica-Bold
+    school_color = st.color_picker("School Text Color", "#000000")
 
 # Main logic
 if excel_file and pdf_file:
@@ -88,12 +107,13 @@ if excel_file and pdf_file:
                     # Create overlay
                     overlay_packet = io.BytesIO()
                     c = canvas.Canvas(overlay_packet, pagesize=(w, h))
-                    c.setFillColorRGB(18/255, 97/255, 160/255)
-                    c.setFont("BlissExtraBold", student_font_size)
+                    c.setFillColorRGB(*hex_to_rgb(student_color))  
+                    c.setFont(student_font, student_font_size)     
                     c.drawCentredString(student_x, student_y, student)
 
                     if school:
-                        c.setFont("BlissExtraBold", school_font_size)
+                        c.setFillColorRGB(*hex_to_rgb(school_color))  
+                        c.setFont(school_font, school_font_size)      
                         c.drawCentredString(school_x, school_y, school)
 
                     c.save()
