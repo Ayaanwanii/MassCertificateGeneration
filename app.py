@@ -5,11 +5,17 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import io, re, zipfile
-import base64 # <-- NEW IMPORT for inline PDF display
+import base64 
+import copy 
 
 # Register font (ensure this font file exists in your working folder)
 pdfmetrics.registerFont(TTFont('BlissExtraBold', './Bliss Extra Bold.ttf'))
 pdfmetrics.registerFont(TTFont('Alliance-BoldItalic', './alliance-bolditalic.ttf'))
+
+try:
+    pdfmetrics.registerFont(TTFont('FrutigerLight', './FrutigerLight-TrueType.ttf'))
+except Exception:
+    pass 
 
 # Streamlit page setup
 st.set_page_config(page_title="Certificate Generator", page_icon="🎓", layout="wide")
@@ -26,18 +32,9 @@ def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip('#')
     return tuple(int(hex_color[i:i+2], 16) / 255 for i in (0, 2, 4))
 
-# NEW FUNCTION: Core logic for generating a single PDF is now here
 def generate_certificate_pdf(row, student_col, school_col, pdf_bytes, settings):
     """
     Core logic to generate a single certificate PDF buffer.
-    
-    Args:
-        row (pd.Series): Single row of participant data.
-        pdf_bytes (bytes): The byte content of the base PDF template.
-        settings (dict): Dictionary containing all text/position settings.
-        
-    Returns:
-        tuple[io.BytesIO, str]: Buffer containing the final merged PDF and the student name.
     """
     
     # Extract data
@@ -49,7 +46,6 @@ def generate_certificate_pdf(row, student_col, school_col, pdf_bytes, settings):
             school = str(raw_school).strip()
             
     if not student:
-        # Raise a ValueError for clean handling in the calling function
         raise ValueError("Student name is empty or invalid.")
 
     # Read base template
@@ -82,46 +78,50 @@ def generate_certificate_pdf(row, student_col, school_col, pdf_bytes, settings):
 
     # Merge base + overlay
     overlay_reader = PdfReader(overlay_packet)
-    # Create a new blank page to merge onto
-    merged_page = PageObject.create_blank_page(width=w, height=h)
-    merged_page.merge_page(base_page)
+    
+    # Use deepcopy to ensure merged_page is a PageObject
+    merged_page = copy.deepcopy(base_page) 
     merged_page.merge_page(overlay_reader.pages[0])
-
+    
     # Write output
     out_buf = io.BytesIO()
     writer = PdfWriter()
     writer.add_page(merged_page)
     writer.write(out_buf)
+    
+    writer.close() 
+    
     out_buf.seek(0) # Seek to start so it can be read later
     
     return out_buf, student
 
 
-# NEW FUNCTION: Embeds the PDF in the Streamlit app
-def display_pdf(pdf_buffer):
+# CODE CHANGE 1: Modify display_pdf to accept raw bytes
+def display_pdf(pdf_bytes): # Changed parameter name to pdf_bytes
     """Encodes PDF bytes to Base64 and displays it in an embedded iframe."""
-    # Move the buffer cursor to the start before reading
-    pdf_buffer.seek(0)
-    base64_pdf = base64.b64encode(pdf_buffer.read()).decode('utf-8')
     
-    # Create the HTML structure to embed the PDF via a Data URI
+    # Use the raw bytes directly
+    base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8') 
+    
     pdf_display = f"""
-    <div style="border: 2px solid #333; border-radius: 8px; overflow: hidden; margin-top: 20px;">
-        <iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600" type="application/pdf">
-        </iframe>
-    </div>
+    <iframe src="data:application/pdf;base64,{base64_pdf}" 
+            width="100%" 
+            height="700" 
+            style="display: block; margin: 0 auto; max-width: 800px; border: 1px solid #ddd;"
+            type="application/pdf">
+    </iframe>
     """
-    # Use unsafe_allow_html to inject the iframe
+    
     st.markdown(pdf_display, unsafe_allow_html=True)
     st.info("The certificate is displayed above. Check the font, position, and size before generating the batch.")
 
 
 # --- Settings Panel ---
-st.markdown("### Certificate Text Settings")
+st.markdown("Certificate Text Settings")
 
 col1, col2 = st.columns(2)
 
-# Prepare font list dynamically, including registered fonts
+# Prepare font list dynamically
 available_fonts = [
     "Helvetica", "Helvetica-Bold", "Helvetica-Oblique", "Helvetica-BoldOblique",
     "Times-Roman", "Times-Bold", "Times-Italic", "Times-BoldItalic",
@@ -146,7 +146,7 @@ with col2:
     school_font = st.selectbox("School Font", available_fonts, index=available_fonts.index("Helvetica-Bold"))
     school_color = st.color_picker("School Text Color", "#000000")
 
-# NEW: Collect all settings into a dictionary for easy passing
+# Collect all settings into a dictionary for easy passing
 settings = {
     'student_font_size': student_font_size,
     'student_x': student_x,
@@ -163,15 +163,33 @@ settings = {
 
 # --- Main Logic ---
 if excel_file and pdf_file:
-    # Read Excel and ensure headers are correct
-    participants = pd.read_excel(excel_file, header=0)
+    pdf_bytes = pdf_file.read()
+    
+    # Reset file pointer for reading headers/skip detection
+    excel_file.seek(0)
+    
+    try:
+        # Attempt to read the first few rows (as headers) to check for title/empty rows
+        # Use pd.read_excel directly here as st.file_uploader handles the file access
+        temp_df = pd.read_excel(excel_file, header=None, nrows=5) 
+        
+        # Check for the known pattern of the "Javier Test Certificate" file
+        skip_rows_count = 0
+        if temp_df.iloc[0, 0] is not None and 'test certificate' in str(temp_df.iloc[0, 0]).lower():
+            skip_rows_count = 2
+
+    except Exception:
+        skip_rows_count = 0 # Default to standard reading
+        
+    excel_file.seek(0) # Reset pointer again for final reading
+    
+    # Read the final DataFrame, setting the header to the correct row index
+    participants = pd.read_excel(excel_file, header=skip_rows_count) 
     
     # Handle unnamed first column
     if participants.columns.size > 0 and (participants.columns[0] == participants.columns.name or str(participants.columns[0]).startswith('Unnamed:')):
          participants.columns = ["Student Name"] + list(participants.columns[1:])
     
-    pdf_bytes = pdf_file.read()
-
     # Auto-detect columns
     student_col = next(
         (c for c in participants.columns if "student" in str(c).lower() or "name" in str(c).lower()),
@@ -198,14 +216,18 @@ if excel_file and pdf_file:
     
     # --- PREVIEW FEATURE (Inline Display) ---
     st.subheader("1. Preview Certificate")
-    # This button now triggers the generation of the first certificate and displays it inline.
     if st.button("Preview First Certificate"):
         if participants.empty or student_col is None:
             st.error("The participant list is empty or the column structure is invalid.")
         else:
             try:
-                # Get data for the third participant
-                first_row = participants.iloc[2]
+                # Decide which row to preview (second row if available, otherwise first)
+                if len(participants) < 2:
+                    st.warning("The participant list has fewer than two entries. Previewing the first entry (Index 0).")
+                    first_row = participants.iloc[0]
+                else:
+                    # Use the second row of data (Index 1) as requested
+                    first_row = participants.iloc[1] 
                 
                 with st.spinner(f"Generating preview for {first_row[student_col]}..."):
                     
@@ -214,8 +236,11 @@ if excel_file and pdf_file:
                         first_row, student_col, school_col, pdf_bytes, settings
                     )
                     
-                    # Display the generated PDF inline
-                    display_pdf(preview_buf)
+                    # CODE CHANGE 2: Extract raw bytes before calling display_pdf
+                    preview_data = preview_buf.getvalue()
+                    
+                    # Display the generated PDF inline, passing the raw bytes
+                    display_pdf(preview_data)
                     
             except Exception as e:
                 st.error(f"Error creating preview. Please check your X/Y coordinates, font selection, and uploaded files. Error: {e}")
@@ -236,7 +261,7 @@ if excel_file and pdf_file:
                         unique_id = f"Row_{idx+1}"
                         student = ""
                         try:
-                            # Use the reusable function
+                            # Use the reusable function here too
                             out_buf, student = generate_certificate_pdf(
                                 row, student_col, school_col, pdf_bytes, settings
                             )
