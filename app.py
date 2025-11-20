@@ -205,7 +205,7 @@ if excel_file and pdf_file:
         else:
             try:
                 # Get data for the first participant
-                first_row = participants.iloc[0]
+                first_row = participants.iloc[1]
                 
                 with st.spinner(f"Generating preview for {first_row[student_col]}..."):
                     
