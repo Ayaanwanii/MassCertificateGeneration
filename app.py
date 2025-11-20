@@ -6,7 +6,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import io, re, zipfile
 import base64 
-import copy 
+import copy # <-- Import the standard copy module
 
 # Register font (ensure this font file exists in your working folder)
 pdfmetrics.registerFont(TTFont('BlissExtraBold', './Bliss Extra Bold.ttf'))
@@ -96,28 +96,8 @@ def generate_certificate_pdf(row, student_col, school_col, pdf_bytes, settings):
     return out_buf, student
 
 
-# CODE CHANGE 1: Modify display_pdf to accept raw bytes
-def display_pdf(pdf_bytes): # Changed parameter name to pdf_bytes
-    """Encodes PDF bytes to Base64 and displays it in an embedded iframe."""
-    
-    # Use the raw bytes directly
-    base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8') 
-    
-    pdf_display = f"""
-    <iframe src="data:application/pdf;base64,{base64_pdf}" 
-            width="100%" 
-            height="700" 
-            style="display: block; margin: 0 auto; max-width: 800px; border: 1px solid #ddd;"
-            type="application/pdf">
-    </iframe>
-    """
-    
-    st.markdown(pdf_display, unsafe_allow_html=True)
-    st.info("The certificate is displayed above. Check the font, position, and size before generating the batch.")
-
-
 # --- Settings Panel ---
-st.markdown("Certificate Text Settings")
+st.markdown("### Certificate Text Settings")
 
 col1, col2 = st.columns(2)
 
@@ -165,12 +145,15 @@ settings = {
 if excel_file and pdf_file:
     pdf_bytes = pdf_file.read()
     
+    # -----------------------------------------------------------------
+    # CRITICAL FIX: DYNAMIC HEADER DETECTION
+    # -----------------------------------------------------------------
+    
     # Reset file pointer for reading headers/skip detection
     excel_file.seek(0)
     
     try:
         # Attempt to read the first few rows (as headers) to check for title/empty rows
-        # Use pd.read_excel directly here as st.file_uploader handles the file access
         temp_df = pd.read_excel(excel_file, header=None, nrows=5) 
         
         # Check for the known pattern of the "Javier Test Certificate" file
@@ -214,9 +197,13 @@ if excel_file and pdf_file:
 
     st.markdown("---")
     
-    # --- PREVIEW FEATURE (Inline Display) ---
+    # --- PREVIEW FEATURE (Download Link) ---
     st.subheader("1. Preview Certificate")
-    if st.button("Preview First Certificate"):
+    
+    # NEW CONTAINER FOR THE DOWNLOAD BUTTON
+    preview_placeholder = st.empty() 
+
+    if st.button("Generate Preview"): # Renamed button to be clearer
         if participants.empty or student_col is None:
             st.error("The participant list is empty or the column structure is invalid.")
         else:
@@ -226,7 +213,6 @@ if excel_file and pdf_file:
                     st.warning("The participant list has fewer than two entries. Previewing the first entry (Index 0).")
                     first_row = participants.iloc[0]
                 else:
-                    # Use the second row of data (Index 1) as requested
                     first_row = participants.iloc[1] 
                 
                 with st.spinner(f"Generating preview for {first_row[student_col]}..."):
@@ -236,11 +222,15 @@ if excel_file and pdf_file:
                         first_row, student_col, school_col, pdf_bytes, settings
                     )
                     
-                    # CODE CHANGE 2: Extract raw bytes before calling display_pdf
-                    preview_data = preview_buf.getvalue()
+                    # Display the generated PDF using a download button (guaranteed to work)
+                    preview_placeholder.download_button(
+                        label=f"Download Preview: {student_name}.pdf (Click to View)",
+                        data=preview_buf.getvalue(),
+                        file_name=f"preview_{student_name.replace(' ', '_')}.pdf",
+                        mime="application/pdf"
+                    )
                     
-                    # Display the generated PDF inline, passing the raw bytes
-                    display_pdf(preview_data)
+                    st.info("The preview file has been generated. Click the button above to view it in your browser.")
                     
             except Exception as e:
                 st.error(f"Error creating preview. Please check your X/Y coordinates, font selection, and uploaded files. Error: {e}")
