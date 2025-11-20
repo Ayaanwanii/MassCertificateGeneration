@@ -164,7 +164,7 @@ settings = {
 # --- Main Logic ---
 if excel_file and pdf_file:
     # Read Excel and ensure headers are correct
-    participants = pd.read_excel(excel_file, header=0)
+    participants = pd.read_excel(excel_file, header=2)
     
     # Handle unnamed first column
     if participants.columns.size > 0 and (participants.columns[0] == participants.columns.name or str(participants.columns[0]).startswith('Unnamed:')):
