@@ -164,7 +164,7 @@ settings = {
 # --- Main Logic ---
 if excel_file and pdf_file:
     # Read Excel and ensure headers are correct
-    participants = pd.read_excel(excel_file, header=2)
+    participants = pd.read_excel(excel_file, header=0)
     
     # Handle unnamed first column
     if participants.columns.size > 0 and (participants.columns[0] == participants.columns.name or str(participants.columns[0]).startswith('Unnamed:')):
@@ -204,8 +204,8 @@ if excel_file and pdf_file:
             st.error("The participant list is empty or the column structure is invalid.")
         else:
             try:
-                # Get data for the first participant
-                first_row = participants.iloc[1]
+                # Get data for the third participant
+                first_row = participants.iloc[2]
                 
                 with st.spinner(f"Generating preview for {first_row[student_col]}..."):
                     
