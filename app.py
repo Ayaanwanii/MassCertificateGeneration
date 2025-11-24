@@ -92,7 +92,7 @@ def generate_certificate_pdf(row, student_col, school_col, pdf_bytes, settings):
 
 
 # --- Settings Panel ---
-st.markdown("Certificate Text Settings")
+st.markdown("### Certificate Text Settings")
 
 col1, col2 = st.columns(2)
 
@@ -138,6 +138,10 @@ settings = {
 # --- Main Logic ---
 if excel_file and pdf_file:
     pdf_bytes = pdf_file.read()
+    
+    # -----------------------------------------------------------------
+    # CRITICAL FIX: DYNAMIC HEADER DETECTION
+    # -----------------------------------------------------------------
     
     # Reset file pointer for reading headers/skip detection
     excel_file.seek(0)
@@ -219,9 +223,9 @@ if excel_file and pdf_file:
                         first_row, student_col, school_col, pdf_bytes, settings
                     )
                     
-                    # Display the generated PDF using an iframe
+                    # Display the generated PDF using an embed tag (better browser compatibility for data URIs)
                     base64_pdf = base64.b64encode(preview_buf.getvalue()).decode('utf-8')
-                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf"></iframe>'
+                    pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf">'
                     preview_placeholder.markdown(pdf_display, unsafe_allow_html=True)
                     
                     st.info("The preview is displayed above. Adjust settings (sliders, etc.) to see real-time updates.")
