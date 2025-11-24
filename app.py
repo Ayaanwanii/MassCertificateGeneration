@@ -7,6 +7,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 import io, re, zipfile
 import base64 
 import copy # <-- Import the standard copy module
+from streamlit_pdf_viewer import pdf_viewer # Import the PDF viewer component
 
 # Register font (ensure this font file exists in your working folder)
 pdfmetrics.registerFont(TTFont('BlissExtraBold', './Bliss Extra Bold.ttf'))
@@ -104,6 +105,7 @@ available_fonts = [
     "Symbol", "ZapfDingbats", 
     "BlissExtraBold", 
     "Alliance-BoldItalic",
+    "FrutigerLight",
 ]
 
 with col1:
@@ -223,10 +225,10 @@ if excel_file and pdf_file:
                         first_row, student_col, school_col, pdf_bytes, settings
                     )
                     
-                    # Display the generated PDF using an embed tag (better browser compatibility for data URIs)
-                    base64_pdf = base64.b64encode(preview_buf.getvalue()).decode('utf-8')
-                    pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf">'
-                    preview_placeholder.markdown(pdf_display, unsafe_allow_html=True)
+                    # Display the generated PDF using streamlit-pdf-viewer
+                    # This is more robust than iframe/embed for base64 PDFs
+                    with preview_placeholder.container():
+                        pdf_viewer(input=preview_buf.getvalue(), width=700)
                     
                     st.info("The preview is displayed above. Adjust settings (sliders, etc.) to see real-time updates.")
                     
