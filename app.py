@@ -12,11 +12,6 @@ import copy # <-- Import the standard copy module
 pdfmetrics.registerFont(TTFont('BlissExtraBold', './Bliss Extra Bold.ttf'))
 pdfmetrics.registerFont(TTFont('Alliance-BoldItalic', './alliance-bolditalic.ttf'))
 
-try:
-    pdfmetrics.registerFont(TTFont('FrutigerLight', './FrutigerLight-TrueType.ttf'))
-except Exception:
-    pass 
-
 # Streamlit page setup
 st.set_page_config(page_title="Certificate Generator", page_icon="🎓", layout="wide")
 st.title("Automated Certificate Generator")
@@ -97,7 +92,7 @@ def generate_certificate_pdf(row, student_col, school_col, pdf_bytes, settings):
 
 
 # --- Settings Panel ---
-st.markdown("### Certificate Text Settings")
+st.markdown("Certificate Text Settings")
 
 col1, col2 = st.columns(2)
 
@@ -109,7 +104,6 @@ available_fonts = [
     "Symbol", "ZapfDingbats", 
     "BlissExtraBold", 
     "Alliance-BoldItalic",
-    "FrutigerLight",
 ]
 
 with col1:
@@ -144,10 +138,6 @@ settings = {
 # --- Main Logic ---
 if excel_file and pdf_file:
     pdf_bytes = pdf_file.read()
-    
-    # -----------------------------------------------------------------
-    # CRITICAL FIX: DYNAMIC HEADER DETECTION
-    # -----------------------------------------------------------------
     
     # Reset file pointer for reading headers/skip detection
     excel_file.seek(0)
