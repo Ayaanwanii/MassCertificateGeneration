@@ -114,15 +114,15 @@ available_fonts = [
 
 with col1:
     student_font_size = st.number_input("Student Name Font Size", 10, 60, 18)
-    student_x = st.number_input("Student X Position", 0, 1224, 427)
-    student_y = st.number_input("Student Y Position", 0, 800, 200)
+    student_x = st.slider("Student X Position", 0, 1224, 427)
+    student_y = st.slider("Student Y Position", 0, 800, 200)
     student_font = st.selectbox("Student Font", available_fonts, index=available_fonts.index("Helvetica-Bold"))
     student_color = st.color_picker("Student Text Color", "#000000")
 
 with col2:
     school_font_size = st.number_input("School Name Font Size", 10, 60, 18)
-    school_x = st.number_input("School X Position", 0, 1224, 306)
-    school_y = st.number_input("School Y Position", 0, 800, 550)
+    school_x = st.slider("School X Position", 0, 1224, 306)
+    school_y = st.slider("School Y Position", 0, 800, 550)
     school_font = st.selectbox("School Font", available_fonts, index=available_fonts.index("Helvetica-Bold"))
     school_color = st.color_picker("School Text Color", "#000000")
 
@@ -203,7 +203,14 @@ if excel_file and pdf_file:
     # NEW CONTAINER FOR THE DOWNLOAD BUTTON
     preview_placeholder = st.empty() 
 
-    if st.button("Generate Preview"): # Renamed button to be clearer
+    # Initialize session state for preview visibility
+    if 'show_preview' not in st.session_state:
+        st.session_state.show_preview = False
+
+    if st.button("Generate Preview"): 
+        st.session_state.show_preview = True
+
+    if st.session_state.show_preview:
         if participants.empty or student_col is None:
             st.error("The participant list is empty or the column structure is invalid.")
         else:
@@ -222,15 +229,12 @@ if excel_file and pdf_file:
                         first_row, student_col, school_col, pdf_bytes, settings
                     )
                     
-                    # Display the generated PDF using a download button (guaranteed to work)
-                    preview_placeholder.download_button(
-                        label=f"Download Preview: {student_name}.pdf (Click to View)",
-                        data=preview_buf.getvalue(),
-                        file_name=f"preview_{student_name.replace(' ', '_')}.pdf",
-                        mime="application/pdf"
-                    )
+                    # Display the generated PDF using an iframe
+                    base64_pdf = base64.b64encode(preview_buf.getvalue()).decode('utf-8')
+                    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf"></iframe>'
+                    preview_placeholder.markdown(pdf_display, unsafe_allow_html=True)
                     
-                    st.info("The preview file has been generated. Click the button above to view it in your browser.")
+                    st.info("The preview is displayed above. Adjust settings (sliders, etc.) to see real-time updates.")
                     
             except Exception as e:
                 st.error(f"Error creating preview. Please check your X/Y coordinates, font selection, and uploaded files. Error: {e}")
